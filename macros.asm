@@ -105,6 +105,18 @@ endm
             Loop y_axis
     endm
 
+    GraphOriginal macro
+
+    endm
+
+    GraphDerived macro
+
+    endm
+
+    GraphIntegral macro
+
+    endm
+
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\     FILES     \\\\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\

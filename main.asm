@@ -10,12 +10,13 @@ include macros.asm
 
     ; SPECIAL CHARACTERS
         newLine db 13, 10, '$'
+        cleanChar db '             ', '$'
     ; END SPECIAL CHARACTERS
 
     ; HEADERS AND MENUS
         ; PRINCIPAL MENU
             header db 'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 13, 10, 'FACULTAD DE INGENIERIA', 13, 10, 'ESCUELA DE CIENCIAS Y SISTEMAS', 13, 10, 'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1', 13, 10, 'PRIMER SEMESTRE 2020', 13, 10, 'NOMBRE: ANGEL MANUEL MIRANDA ASTURIAS', 13, 10, 'CARNET: 201807394', 13, 10, 'SECCION: A', 13, 10, 'PRACTICA 5', '$'
-            menu db 13, 10, 9, 9, '-_-MENU-_-', 13, 10, 9, 9, '1) Ingresar Funcion f(x)', 13, 10, 9, 9, '2) Funcion en memoria', 13, 10, 9, 9, '3) Derivada f`(x)', 13, 10, 9, 9, '4) Integral F(x)', 13, 10, 9, 9, '5) Graficar Funciones', 13, 10, 9, 9, '6) Reporte', 13, 10, 9, 9, '7) Modo Calculadora', 13, 10, 9, 9, '8) Salir', 13, 10, '$'
+            menu db 13, 10, 9, '-_-MENU-_-', 13, 10, 9, '1) Ingresar Funcion f(x)', 13, 10, 9, '2) Funcion en memoria', 13, 10, 9, '3) Derivada f`(x)', 13, 10, 9, '4) Integral F(x)', 13, 10, 9, '5) Graficar Funciones', 13, 10, 9, '6) Reporte', 13, 10, 9, '7) Modo Calculadora', 13, 10, 9, '8) Salir', 13, 10, '$'
             msgRoute db 'Ingrese la ruta (##ruta.arq##): ', '$'
 
         ; ENTER FUNCTION
@@ -30,6 +31,7 @@ include macros.asm
         ; FUNCTION IN MEMORY
             headerFunctionM db 'Funcion en memoria f(x): ', 13, 10, '$'
             msgFunctionM db 'f(x) =', '$'
+            txtFunction db 500 dup('$')
 
         ; DERIVED 
             headerDerived db 'DERIVADA DE f(x): ', 13, 10, '$'
@@ -41,7 +43,7 @@ include macros.asm
             msgC db ' + c', '$'
         
         ; GRAPH
-            menuGraph db '9, 9, -_-MENU GRAFICAR-_-', 13, 10, 9, 9, '1) Graficar Original f(x)', 13, 10, 9, 9, '2) Graficar Derivada f`(x)', 13, 10, 9, 9, '3) Graficar Integral F(x)', 13, 10, 9, 9, '4) Regresar f(x)', 13, 10, '$'
+            menuGraph db 9, 9, '-_-MENU GRAFICAR-_-', 13, 10, '1) Graficar Original f(x)', 13, 10, '2) Graficar Derivada f`(x)', 13, 10, '3) Graficar Integral F(x)', 13, 10, '4) Regresar f(x)', 13, 10, '$'
             msgEnterInterval db 'Ingrese el valor ', '$'
             msgEIU db 'final ', '$'
             msgEID db 'inicial ', '$'
@@ -56,6 +58,8 @@ include macros.asm
         originalMsg db 'Funcion Original', 13, 10
         derivedMsg db 'Funcion Derivada', 13, 10
         integralMsg db 'Funcion Integral', 13, 10
+
+        routeReport db 'report.arq'
     ; END REPORT
 
     ; CALCULATOR
@@ -67,6 +71,19 @@ include macros.asm
             invalidCharE db 'Caracter invalido:    ', '$'
             missingCharE db 'Falto caracter de finalizacion (', 59, ')', '$'
     ; END CALCULATOR
+
+    ; "VARIABLES"
+        selectionGraph db 31h
+
+    ; END VARIABLES
+
+    ; ERRORS
+        msgErrorWrite db 'Error al escribir en el archivo', '$'
+        msgErrorOpen db 'Error al abrir el archivo', '$'
+        msgErrorCreate db 'Error al crear el archivo', '$'
+        msgErrorClose db 'Error al cerrar el archivo', '$'
+        msgErrorRead db 'Error al leer el archivo', '$'
+    ; END ERRORS
 
 ; CODE SEGMENT
 .code
@@ -86,30 +103,22 @@ main proc
         ClearConsole
         
         ; COMPARE THE CHAR THAT THE USER WRITE IN THE PROGRAM
-        cmp al, 31h
-            ; ENTER FUNCTION
-            je EnterFunction
-        cmp al, 32h
-            ; ENTER FUNCTION IN MEMORY
-            je EnterFunctionMemory
-        cmp al, 33h
-            ; ENTER DERIVED
-            je Derived
-        cmp al, 34h
-            ; ENTER INTEGRAL
-            je Integral
-        cmp al, 35h
-            ; GRAPH
-            je Graph
-        cmp al, 36h
-            ; REPORTS
-            je Reports
-        cmp al, 37h
-            ; CALCULATOR MODE
-            je Calculator
-        cmp al, 38h
-            ; EXIT
-            je Exit
+            cmp al, 31h
+                je EnterFunction
+            cmp al, 32h
+                je EnterFunctionMemory
+            cmp al, 33h
+                je Derived
+            cmp al, 34h
+                je Integral
+            cmp al, 35h
+                je Graph
+            cmp al, 36h
+                je Reports
+            cmp al, 37h
+                je Calculator
+            cmp al, 38h
+                je Exit
         jmp Start
     EnterFunction:
         print headerEnterF
@@ -117,34 +126,59 @@ main proc
         print msgX4
 
         getChar
+
+        print newLine
         
         print msgEnterF
         print msgX3
         
         getChar
 
+        print newLine
+
         print msgEnterF
         print msgX2
 
         getChar
+
+        print newLine
 
         print msgEnterF
         print msgX1
 
         getChar
 
+        print newLine
+
         print msgEnterF
         print msgX0
 
         getChar
 
+        print newLine
+
+        jmp Start
     EnterFunctionMemory:
 
+        jmp Start
     Derived:
+
+        jmp Start
     Integral:
+
+        jmp Start
     Graph:
 
-        
+        print menuGraph
+
+        getChar
+
+        cmp al, 34h
+            je Start
+
+        mov selectionGraph, al
+
+
 
         Pushear
         
@@ -153,6 +187,8 @@ main proc
         int 10h
 
         GraphAxis
+        
+        ;GraphFunction selectionGraph
 
         ; WAIT
         mov ah, 10h
@@ -163,13 +199,56 @@ main proc
         int 10h
 
         Popear
+
+        jmp Start
     Reports:
+
+        GenerateReport
+
+        jmp Start
     Calculator:
+
+        jmp Start
     Exit:
         mov ah, 4ch     ; END PROGRAM
         xor al, al
         int 21h
     ; ERRORS
+        WriteError:
+            print msgErrorWrite
+            getChar
+            print cleanChar
+            print cleanChar
+            print cleanChar        
+            jmp Start
+        OpenError:
+            print msgErrorOpen
+            getChar
+            print cleanChar
+            print cleanChar
+            print cleanChar        
+            jmp Start
+        CreateError:
+            print msgErrorCreate
+            getChar
+            print cleanChar
+            print cleanChar
+            print cleanChar        
+            jmp Start
+        CloseError:
+            print msgErrorClose
+            getChar
+            print cleanChar
+            print cleanChar
+            print cleanChar        
+            jmp Start
+        ReadError:
+            print msgErrorRead
+            getChar
+            print cleanChar
+            print cleanChar
+            print cleanChar        
+            jmp Start
 main endp
 
 end
