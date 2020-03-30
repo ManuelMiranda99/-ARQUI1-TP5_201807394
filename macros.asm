@@ -91,10 +91,20 @@ printPixel macro x, y, color
 endm
 
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+;;\\\\\\\\\\\\\\\\  CALCULATOR  \\\\\\\\\\\\\\\\\\\\\\
+;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+    AnalizeText macro file
+
+    endm
+
+;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;;\\\\\\\\\\\\\\\\     GRAPH    \\\\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     GraphAxis macro
+        local x_axis, y_axis
+        
         mov cx, 13eh
         x_axis:
             printPixel cx, 5fh, 4fh
@@ -218,7 +228,7 @@ endm
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     ; PRINCIPAL MACRO FOR DATE AND HOUR
-    getDateAndHour macro stringDate
+    getDateAndHour macro stringDate, stringHour
         
         Pushear
         xor si, si

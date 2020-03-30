@@ -52,6 +52,8 @@ include macros.asm
     ; END HEADERS AND MENUS
 
     ; REPORT
+        headerReport db 'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 13, 10, 'FACULTAD DE INGENIERIA', 13, 10, 'ESCUELA DE CIENCIAS Y SISTEMAS', 13, 10, 'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1 A', 13, 10, 'PRIMER SEMESTRE 2020', 13, 10, 'ANGEL MANUEL MIRANDA ASTURIAS', 13, 10, '201807394', 13, 10, 13, 10, 'REPORTE PRACTICA NO. 5', 13, 10, 13, 10
+
         dateMsg db 'Fecha: 00/00/0000', 13, 10
         hourMsg db 'Hora: 00:00:00', 13, 10
 
@@ -59,10 +61,21 @@ include macros.asm
         derivedMsg db 'Funcion Derivada', 13, 10
         integralMsg db 'Funcion Integral', 13, 10
 
+        reportTxt db 2000 dup(00h)
+
         routeReport db 'report.arq'
+
+        reportHandler dw ?
     ; END REPORT
 
     ; CALCULATOR
+
+        ; ROUTE
+            routeCalculator db 50 dup('$')
+            handlerCalculator dw ?
+
+        ; FILE
+            fileContent db 2000 dup('$')
 
         ; END MESSAGE
             resultMsg db 'El resultado de la operacion es: ', '$'
@@ -203,10 +216,35 @@ main proc
         jmp Start
     Reports:
 
+        getDateAndHour dateMsg, hourMsg
+
+        Clean reportTxt, SIZEOF reportTxt, 00h
+
+        CreateFile routeReport, reportHandler
+
         GenerateReport
+
+        WriteOnFile reportHandler, reportTxt, SIZEOF reportTxt
+
+        CloseFile reportHandler
 
         jmp Start
     Calculator:
+        print msgRoute
+
+        Clean routeCalculator, SIZEOF routeCalculator, 24h
+
+        getRoute routeCalculator
+
+        OpenFile routeCalculator, handlerCalculator
+
+        Clean fileContent, SIZEOF fileContent, 56h
+
+        ReadFile handlerCalculator, fileContent, SIZEOF fileContent
+
+        CloseFile handlerCalculator
+
+        AnalizeText fileContent
 
         jmp Start
     Exit:
