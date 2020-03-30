@@ -14,8 +14,8 @@ include macros.asm
 
     ; HEADERS AND MENUS
         ; PRINCIPAL MENU
-            header db 9, 9, 'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 13, 10, 9, 9, 'FACULTAD DE INGENIERIA', 13, 10, 9, 9, 'ESCUELA DE CIENCIAS Y SISTEMAS', 13, 10, 9, 9, 'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1', 13, 10, 9, 9, 'PRIMER SEMESTRE 2020', 13, 10, 9, 9, 'NOMBRE: ANGEL MANUEL MIRANDA ASTURIAS', 13, 10, 9, 9, 'CARNET: 201807394', 13, 10, 9, 9, 'SECCION: A', 13, 10, 9, 9, 'PRACTICA 5', '$'
-            menu db 13, 10, 9, 9, '-_-MENU-_-', 13, 10, 9, 9, '1) Ingresar Funcion f(x)', 13, 10, 9, 9, '2) Funcion en memoria', 13, 10, 9, 9, '3) Derivada f`(x)', 13, 10, 9, 9, '4) Integral F(x)', 13, 10, 9, 9, '5) Graficas Funciones', 13, 10, 9, 9, '6) Reporte', 13, 10, 9, 9, '7) Modo Calculadora', 13, 10, 9, 9, '8) Salir', 13, 10, '$'
+            header db 'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 13, 10, 'FACULTAD DE INGENIERIA', 13, 10, 'ESCUELA DE CIENCIAS Y SISTEMAS', 13, 10, 'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1', 13, 10, 'PRIMER SEMESTRE 2020', 13, 10, 'NOMBRE: ANGEL MANUEL MIRANDA ASTURIAS', 13, 10, 'CARNET: 201807394', 13, 10, 'SECCION: A', 13, 10, 'PRACTICA 5', '$'
+            menu db 13, 10, 9, 9, '-_-MENU-_-', 13, 10, 9, 9, '1) Ingresar Funcion f(x)', 13, 10, 9, 9, '2) Funcion en memoria', 13, 10, 9, 9, '3) Derivada f`(x)', 13, 10, 9, 9, '4) Integral F(x)', 13, 10, 9, 9, '5) Graficar Funciones', 13, 10, 9, 9, '6) Reporte', 13, 10, 9, 9, '7) Modo Calculadora', 13, 10, 9, 9, '8) Salir', 13, 10, '$'
             msgRoute db 'Ingrese la ruta (##ruta.arq##): ', '$'
 
         ; ENTER FUNCTION
@@ -88,29 +88,83 @@ main proc
         ; COMPARE THE CHAR THAT THE USER WRITE IN THE PROGRAM
         cmp al, 31h
             ; ENTER FUNCTION
+            je EnterFunction
         cmp al, 32h
             ; ENTER FUNCTION IN MEMORY
+            je EnterFunctionMemory
         cmp al, 33h
             ; ENTER DERIVED
+            je Derived
         cmp al, 34h
             ; ENTER INTEGRAL
+            je Integral
         cmp al, 35h
             ; GRAPH
+            je Graph
         cmp al, 36h
             ; REPORTS
+            je Reports
         cmp al, 37h
             ; CALCULATOR MODE
+            je Calculator
         cmp al, 38h
             ; EXIT
             je Exit
         jmp Start
     EnterFunction:
+        print headerEnterF
+        print msgEnterF
+        print msgX4
+
+        getChar
+        
+        print msgEnterF
+        print msgX3
+        
+        getChar
+
+        print msgEnterF
+        print msgX2
+
+        getChar
+
+        print msgEnterF
+        print msgX1
+
+        getChar
+
+        print msgEnterF
+        print msgX0
+
+        getChar
+
     EnterFunctionMemory:
+
     Derived:
-    INTEGRAL:
-    GRAPH:
-    REPORTS:
-    CALCULATOR:
+    Integral:
+    Graph:
+
+        
+
+        Pushear
+        
+        ; VIDEO MODE
+        mov ax, 0013h
+        int 10h
+
+        GraphAxis
+
+        ; WAIT
+        mov ah, 10h
+        int 16h
+
+        ; TEXT MODE
+        mov ax, 0003h
+        int 10h
+
+        Popear
+    Reports:
+    Calculator:
     Exit:
         mov ah, 4ch     ; END PROGRAM
         xor al, al

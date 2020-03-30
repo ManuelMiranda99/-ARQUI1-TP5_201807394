@@ -76,6 +76,35 @@ ClearConsole macro
     Popear
 endm
 
+printPixel macro x, y, color
+    Pushear
+
+    mov ah, 0ch
+    mov al, color
+    mov bh, 0h
+    mov dx, y
+    mov cx, x
+
+    int 10h
+
+    Popear
+endm
+
+;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+;;\\\\\\\\\\\\\\\\     GRAPH    \\\\\\\\\\\\\\\\\\\\\\
+;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+    GraphAxis macro
+        mov cx, 13eh
+        x_axis:
+            printPixel cx, 5fh, 4fh
+            Loop x_axis
+            mov cx, 0c6h
+        y_axis:
+            printPixel 9fh, cx, 4fh
+            Loop y_axis
+    endm
+
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\     FILES     \\\\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
