@@ -104,7 +104,7 @@ endm
 
     GraphAxis macro
         local x_axis, y_axis
-        
+
         mov cx, 13eh
         x_axis:
             printPixel cx, 5fh, 4fh
@@ -378,6 +378,41 @@ endm
         mov ah, 2ch
         int 21h
     endm
+
+;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+;\\\\\\\\\\\\\\\\\\\ CONVERSIONES \\\\\\\\\\\\\\\\\\\
+;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+    ConvertToNumber macro number
+        local Begin, EndGC
+        Pushear
+        xor ax, ax
+        xor bx, bx
+        xor cx, cx
+        mov bx, 10
+        xor si, si
+        
+        Begin:
+            mov cl, number[si]
+            ; If the ascii is less than the ascii of 0
+            cmp cl, 48
+                jl EndGC
+            ; If the ascii is more than the ascii of 9
+            cmp cl, 57
+                jg EndGC
+            inc si
+            sub cl, 48  ; Subtract 48 to get the number
+            mul bx      ; Multiply by 10
+            add ax, cx 
+
+            jmp Begin  
+        
+        EndGC:
+            ; The string converted to number is in the registry ax
+            Popear
+    endm
+
+    ConvertToString
 
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\\\ RECOVER THINGS \\\\\\\\\\\\\\\\\\
