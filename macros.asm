@@ -90,6 +90,108 @@ printPixel macro x, y, color
     Popear
 endm
 
+ConcatText macro string1, string2, numBytes
+    local RepeatConcat, EndGC
+
+    xor di, di
+    mov cx, numBytes
+    RepeatConcat:
+        mov al, string2[di]
+        cmp al, 24h
+            je EndGC
+        inc di
+        mov string1[si], al
+        inc si
+    Loop RepeatConcat
+    EndGC:
+endm
+
+;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+;;\\\\\\\\\\\\\\     FUNCTIONS    \\\\\\\\\\\\\\\\\\\\
+;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+    getOFunction macro string
+        local X4, X3, X2, X1, X0
+        Pushear
+
+        xor si, si
+        
+        ConcatText string, msgFunctionM, SIZEOF msgFunctionM
+                
+        X4:
+            ConcatText string, valueX4, SIZEOF valueX4
+
+            mov string[si], 78h         ; x
+            inc si
+            mov string[si], 34h         ; 4
+            inc si
+
+        X3:
+
+            mov string[si], 2bh         ; +
+            inc si
+
+            ConcatText string, valueX3, SIZEOF valueX3
+
+            mov string[si], 78h         ; x
+            inc si
+            mov string[si], 33h         ; 3
+            inc si
+
+        X2:
+
+            mov string[si], 2bh         ; +
+            inc si
+
+            ConcatText string, valueX2, SIZEOF valueX2
+
+            mov string[si], 78h         ; x
+            inc si
+            mov string[si], 32h         ; 2
+            inc si
+
+        X1:
+
+            mov string[si], 2bh         ; +
+            inc si
+
+            ConcatText string, valueX1, SIZEOF valueX1
+
+            mov string[si], 78h         ; x
+            inc si
+            mov string[si], 31h         ; 1
+            inc si
+
+        X0:
+
+            mov string[si], 2bh         ; +
+            inc si
+
+            ConcatText string, valueX0, SIZEOF valueX0
+
+        Popear
+    endm
+
+    getDFunction macro string
+
+    endm
+
+    getIFunction macro string
+
+    endm
+
+    valueOFunction macro
+
+    endm
+
+    valueDFunction macro
+
+    endm
+
+    valueIFunction macro
+
+    endm
+
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;;\\\\\\\\\\\\\\\\  CALCULATOR  \\\\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -108,22 +210,22 @@ endm
         mov cx, 13eh
         x_axis:
             printPixel cx, 5fh, 4fh
-            Loop x_axis
-            mov cx, 0c6h
+        Loop x_axis
+        mov cx, 0c6h
         y_axis:
             printPixel 9fh, cx, 4fh
-            Loop y_axis
+        Loop y_axis
     endm
 
-    GraphOriginal macro
-
-    endm
-
-    GraphDerived macro
+    GraphOriginalMacro macro
 
     endm
 
-    GraphIntegral macro
+    GraphDerivedMacro macro
+
+    endm
+
+    GraphIntegralMacro macro
 
     endm
 
@@ -236,12 +338,12 @@ endm
         getDate
         ; DL = DAY. DH = MONTH
 
-        NumberToString stringDate, dl ; NUMBER -> STRING. DAY
+        ConvertToString stringDate, dl ; NUMBER -> STRING. DAY
 
         mov stringDate[si], 2fh ; /
         inc si
 
-        NumberToString stringDate, dh ; NUMBER -> STRING. MONTH
+        ConvertToString stringDate, dh ; NUMBER -> STRING. MONTH
 
         mov stringDate[si], 2fh ; /
         inc si
@@ -266,22 +368,66 @@ endm
         getHour
         ; CH = HOUR. CL = MINUTES.
         
-        NumberToString stringDate, ch ; NUMBER -> STRING. HOUR
+        ConvertToString stringDate, ch ; NUMBER -> STRING. HOUR
 
         mov stringDate[si],3ah ; :
         inc si
 
-        NumberToString stringDate, cl ; NUMBER -> STRING. MINUTES
+        ConvertToString stringDate, cl ; NUMBER -> STRING. MINUTES
 
         mov stringDate[si],3ah ; :
         inc si
 
-        NumberToString stringDate, dh ; NUMBER -> STRING. SECONDS
+        ConvertToString stringDate, dh ; NUMBER -> STRING. SECONDS
 
         Popear
     endm
 
-    NumberToString macro string, numberToConvert
+    ; GET DATE
+    getDate macro 
+        mov ah, 2ah
+        int 21h
+    endm
+
+    ; GET HOUR
+    getHour macro
+        mov ah, 2ch
+        int 21h
+    endm
+
+;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+;\\\\\\\\\\\\\\\\\\\ Conversions \\\\\\\\\\\\\\\\\\\\
+;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+    ConvertToNumber macro string
+        local Begin, EndGC
+        
+        xor ax, ax
+        xor bx, bx
+        xor cx, cx
+        mov bx, 10
+        xor si, si
+        
+        Begin:
+            mov cl, string[si]
+            ; If the ascii is less than the ascii of 0
+            cmp cl, 48
+                jl EndGC
+            ; If the ascii is more than the ascii of 9
+            cmp cl, 57
+                jg EndGC
+            inc si
+            sub cl, 48  ; Subtract 48 to get the number
+            mul bx      ; Multiply by 10
+            add ax, cx
+
+            jmp Begin  
+        
+        EndGC:
+            ; The string converted to number is in the registry ax
+    endm
+
+    ConvertToString macro string, numberToConvert
         Push ax
         Push bx
 
@@ -297,6 +443,7 @@ endm
         Pop ax
         Pop bx
     endm
+
 
     getNumber macro string, numberToConvert
         local zero, one, two, three, four, five, six, seven, eight, nine
@@ -366,53 +513,6 @@ endm
             jmp EndGC
         EndGC:
     endm
-
-    ; GET DATE
-    getDate macro 
-        mov ah, 2ah
-        int 21h
-    endm
-
-    ; GET HOUR
-    getHour macro
-        mov ah, 2ch
-        int 21h
-    endm
-
-;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-;\\\\\\\\\\\\\\\\\\\ CONVERSIONES \\\\\\\\\\\\\\\\\\\
-;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-    ConvertToNumber macro number
-        local Begin, EndGC
-        Pushear
-        xor ax, ax
-        xor bx, bx
-        xor cx, cx
-        mov bx, 10
-        xor si, si
-        
-        Begin:
-            mov cl, number[si]
-            ; If the ascii is less than the ascii of 0
-            cmp cl, 48
-                jl EndGC
-            ; If the ascii is more than the ascii of 9
-            cmp cl, 57
-                jg EndGC
-            inc si
-            sub cl, 48  ; Subtract 48 to get the number
-            mul bx      ; Multiply by 10
-            add ax, cx 
-
-            jmp Begin  
-        
-        EndGC:
-            ; The string converted to number is in the registry ax
-            Popear
-    endm
-
-    ConvertToString
 
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\\\ RECOVER THINGS \\\\\\\\\\\\\\\\\\

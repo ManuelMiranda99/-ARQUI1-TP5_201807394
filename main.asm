@@ -11,6 +11,7 @@ include macros.asm
     ; SPECIAL CHARACTERS
         newLine db 13, 10, '$'
         cleanChar db '             ', '$'
+        tab db 9, '$'
     ; END SPECIAL CHARACTERS
 
     ; HEADERS AND MENUS
@@ -30,7 +31,7 @@ include macros.asm
 
         ; FUNCTION IN MEMORY
             headerFunctionM db 'Funcion en memoria f(x): ', 13, 10, '$'
-            msgFunctionM db 'f(x) =', '$'
+            msgFunctionM db 'f(x) = '
             txtFunction db 500 dup('$')
 
         ; DERIVED 
@@ -88,9 +89,20 @@ include macros.asm
     ; "VARIABLES"
         selectionGraph db 31h
 
+        functionToShow db 500 dup('$')
+
+        auxiliarReader db 5 dup('$')
+
+        valueX4 db 00h
+        valueX3 db 00h
+        valueX2 db 00h
+        valueX1 db 00h
+        valueX0 db 00h
+
     ; END VARIABLES
 
     ; ERRORS
+        msgErrorNoFunction db 'No ingreso funcion alguna', '$'
         msgErrorWrite db 'Error al escribir en el archivo', '$'
         msgErrorOpen db 'Error al abrir el archivo', '$'
         msgErrorCreate db 'Error al crear el archivo', '$'
@@ -107,7 +119,7 @@ main proc
     mov ds, ax
 
     Start:
-        ClearConsole        
+        ClearConsole
         ; MENU
         print header
         print menu
@@ -135,43 +147,64 @@ main proc
         jmp Start
     EnterFunction:
         print headerEnterF
-        print msgEnterF
-        print msgX4
-
-        getChar
-
-        print newLine
         
-        print msgEnterF
-        print msgX3
-        
-        getChar
+        ; X4
+            print msgEnterF
+            print msgX4
 
-        print newLine
+            getText valueX4
+            
+        ; X3
+            print msgEnterF
+            print msgX3
+            
+            getText valueX3
 
-        print msgEnterF
-        print msgX2
+        ; X2
+            print msgEnterF
+            print msgX2
+            
+            getText valueX2
 
-        getChar
+        ; X1
+            print msgEnterF
+            print msgX1
 
-        print newLine
+            getText valueX1
 
-        print msgEnterF
-        print msgX1
+        ; X0
+            print msgEnterF
+            print msgX0
 
-        getChar
-
-        print newLine
-
-        print msgEnterF
-        print msgX0
-
-        getChar
-
-        print newLine
+            getText valueX0
 
         jmp Start
     EnterFunctionMemory:
+        cmp valueX4, 00h
+            jne ShowFunction
+        cmp valueX3, 00h
+            jne ShowFunction
+        cmp valueX2, 00h
+            jne ShowFunction
+        cmp valueX1, 00h
+            jne ShowFunction
+        cmp valueX2, 00h
+            jne ShowFunction
+
+        print msgErrorNoFunction
+        getChar
+        jmp Start
+
+        ShowFunction:
+            print headerFunctionM
+
+            GetOFunction functionToShow
+
+            print tab
+
+            print functionToShow
+
+            getChar
 
         jmp Start
     Derived:
@@ -184,36 +217,47 @@ main proc
 
         print menuGraph
 
+        Pushear
+
         getChar
 
         cmp al, 34h
             je Start
 
-        mov selectionGraph, al
-
-
-
-        Pushear
-        
         ; VIDEO MODE
         mov ax, 0013h
         int 10h
 
         GraphAxis
+
+        cmp al, 31h
+            je GraphOriginal
+        cmp al, 32h
+            je GraphDerived
+        cmp al, 33h
+            je GraphIntegral
+
+        GraphOriginal:
+            GraphOriginalMacro
+            jmp EndGraph
+        GraphDerived:
+            GraphDerivedMacro
+            jmp EndGraph
+        GraphIntegral:
+            GraphIntegralMacro
         
-        ;GraphFunction selectionGraph
+        EndGraph:
+            ; WAIT
+            mov ah, 10h
+            int 16h
 
-        ; WAIT
-        mov ah, 10h
-        int 16h
+            ; TEXT MODE
+            mov ax, 0003h
+            int 10h
 
-        ; TEXT MODE
-        mov ax, 0003h
-        int 10h
+            Popear
 
-        Popear
-
-        jmp Start
+            jmp Start
     Reports:
 
         getDateAndHour dateMsg, hourMsg
@@ -222,7 +266,7 @@ main proc
 
         CreateFile routeReport, reportHandler
 
-        GenerateReport
+        ;GenerateReport
 
         WriteOnFile reportHandler, reportTxt, SIZEOF reportTxt
 
