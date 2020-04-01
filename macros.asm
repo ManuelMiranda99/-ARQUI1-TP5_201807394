@@ -104,6 +104,20 @@ ConcatText macro string1, string2, numBytes
     EndGC:
 endm
 
+TestingAX macro
+
+    xor di, di
+    mov testing[di], ah
+    inc di
+    mov testing[di], al
+
+    print testing
+    Push ax
+    getChar
+    Pop ax
+
+endm
+
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;;\\\\\\\\\\\\\\     FUNCTIONS    \\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -178,13 +192,73 @@ endm
 
         ConcatText string, msgDerived, SIZEOF msgDerived
 
-        ConvertToNumber valueX4     ; Value in ax
+        ; X4 -> X3
+        X3:
+            ConvertToNumber valueX4     ; Value in ax        
 
-        mov bx, 04h
+            mov bx, 04h
 
-        mul bx                      ; AX = valueX4 * 4
+            mul bx                      ; AX = valueX4 * 4
 
+            ConvertToString valueXD3
+
+            ConcatText string, valueXD3, SIZEOF valueXD3
+
+            mov string[si], 78h         ; x
+            inc si
+            mov string[si], 33h         ; 3
+            inc si
+
+        ; X3 -> X2
+        X2:
+            ConvertToNumber valueX3     ; Value in ax        
+
+            mov bx, 03h
+
+            mul bx                      ; AX = valueX3 * 3
+
+            ConvertToString valueXD2
+
+            mov string[si], 2bh         ; +
+            inc si
+
+            ConcatText string, valueXD2, SIZEOF valueXD2
+
+            mov string[si], 78h         ; x
+            inc si
+            mov string[si], 32h         ; 2
+            inc si
+
+        ; X2 -> X1
+        X1:
+            ConvertToNumber valueX2     ; Value in ax        
+
+            mov bx, 02h
+
+            mul bx                      ; AX = valueX3 * 2
+
+            ConvertToString valueXD1
+
+            mov string[si], 2bh         ; +
+            inc si
+
+            ConcatText string, valueXD1, SIZEOF valueXD1
+
+            mov string[si], 78h         ; x
+            inc si
+            mov string[si], 31h         ; 1
+            inc si        
         
+        ; X1 -> X0
+        X0:
+            ConvertToNumber valueX1     ; Value in ax        
+
+            ConvertToString valueXD0
+
+            mov string[si], 2bh         ; +
+            inc si
+
+            ConcatText string, valueXD0, SIZEOF valueXD0
 
         Popear
     endm
@@ -219,7 +293,7 @@ endm
     endm
 
     GraphOriginalMacro macro inferior, superior
-        local RepeatNegative, RepeatPositive, NegativeXN, PositiveXN, PrintN, NegativeXP, PositiveXP, PrintP
+        local RepeatNegative, RepeatPositive, NegativeXN, PositiveXN, PrintN, NegativeXP, PositiveXP, PrintP, EndOfLoopNeg, EndOfLoopPos
         Pushear
 
         xor si, si
@@ -363,16 +437,7 @@ endm
                 mov dx, 63h
                 sub dx, ax
 
-            PrintN:
-                ;xor di, di
-                ;mov testing[di], ah
-                ;inc di
-                ;mov testing[di], al
-
-                ;print testing
-                ;Push ax
-                ;getChar
-                ;Pop ax
+            PrintN:                
                 cmp ax, 63h
                     jae EndOfLoopNeg
                 printPixel bx, dx, 4fh
@@ -486,17 +551,7 @@ endm
 
             Pop ax
 
-            add ax, bx
-
-            ;xor di, di
-            ;mov testing[di], ah
-            ;inc di
-            ;mov testing[di], al
-
-            ;print testing
-            ;Push ax
-            ;getChar
-            ;Pop ax
+            add ax, bx            
             
             ; Print pixels
             
@@ -519,16 +574,7 @@ endm
                 mov dx, 63h
                 sub dx, ax
 
-            PrintP:
-                ;xor di, di
-                ;mov testing[di], ah
-                ;inc di
-                ;mov testing[di], al
-
-                ;print testing
-                ;Push ax
-                ;getChar
-                ;Pop ax
+            PrintP:                
                 cmp ax, 63h
                     jae EndOfLoopPos
                 printPixel bx, dx, 4fh
@@ -542,7 +588,244 @@ endm
     endm
 
     GraphDerivedMacro macro inferior, superior
+        local RepeatNegative, RepeatPositive, NegativeXN, PositiveXN, PrintN, NegativeXP, PositiveXP, PrintP, EndOfLoopNeg, EndOfLoopPos
+        Pushear
 
+        xor si, si
+        xor di, di
+        xor ax, ax
+        xor bx, bx
+        xor cx, cx
+
+        ConvertToNumber inferior
+
+        mov cx, ax
+
+        ; -X
+        RepeatNegative:
+            Push cx                         ; Save the value of cx
+
+            ; X3
+                MultiplyXsTimes cx, 02h
+
+                neg ax
+
+                Push ax                     ; Save the value of X^3
+
+                ConvertToNumber valueXD3    ; Convert the coefficient C x^3
+
+                mov bx, ax
+
+                Pop ax
+
+                mul bx                      ; Multiply by CX^3                
+
+                Pop cx                      ; Restore the value for the loop
+            Push ax
+
+            Push cx
+
+            ; X2
+                MultiplyXsTimes cx, 01h
+
+                Push ax
+
+                ConvertToNumber valueXD2
+
+                mov bx, ax
+
+                Pop ax
+
+                mul bx
+
+                Pop cx
+
+            mov bx, ax
+
+            Pop ax
+
+            add ax, bx
+            
+            Push ax
+
+            Push cx
+
+            ; X1
+                ConvertToNumber valueXD1 
+
+                Pop cx                  
+                
+                Push cx
+                
+                neg cx
+
+                mul cx                  
+
+                Pop cx
+            ; Move the value of AX^1 to bx
+            mov bx, ax
+
+            Pop ax                     
+
+            add ax, bx                 
+
+            Push ax                     
+
+            Push cx                     
+            ; X0
+                ConvertToNumber valueXD0
+
+                mov bx, ax
+
+                Pop cx                  
+
+            Pop ax
+
+            add ax, bx
+
+            ; Print pixels
+
+            ; X axis
+            mov bx, 9fh
+            sub bx, cx
+
+            test ax, 1000000000000000b
+                jnz NegativeXN
+            jmp PositiveXN
+
+            NegativeXN:
+                neg ax
+                ; Y axis
+                mov dx, 63h
+                add dx, ax
+                jmp PrintN
+            PositiveXN:
+                ; Y axis
+                mov dx, 63h
+                sub dx, ax
+
+            PrintN:
+                cmp ax, 63h
+                    jae EndOfLoopNeg
+                printPixel bx, dx, 4fh
+
+            EndOfLoopNeg:
+        dec cx
+            jne RepeatNegative
+
+        ConvertToNumber superior
+
+        mov cx, ax
+
+        ; +X
+        RepeatPositive:
+            Push cx                         ; Save the value of cx
+
+            ; X3
+                MultiplyXsTimes cx, 02h
+
+                Push ax                     ; Save the value of X^3
+
+                ConvertToNumber valueXD3    ; Convert the coefficient C x^3
+
+                mov bx, ax
+
+                Pop ax
+
+                mul bx                      ; Multiply by CX^3
+
+                Pop cx                      ; Restore the value for the loop
+            Push ax
+
+            Push cx
+
+            ; X2
+                MultiplyXsTimes cx, 01h
+
+                Push ax
+
+                ConvertToNumber valueXD2
+
+                Mov bx, ax
+
+                Pop ax
+
+                mul bx
+
+                Pop cx
+
+            mov bx, ax
+
+            Pop ax
+
+            add ax, bx
+            
+            Push ax
+
+            Push cx
+
+            ; X1
+                ConvertToNumber valueXD1 
+
+                Pop cx                  
+                
+                Push cx
+                
+                mul cx                  
+
+                Pop cx
+            ; Move the value of AX^1 to bx
+            mov bx, ax
+
+            Pop ax                     
+
+            add ax, bx                 
+
+            Push ax                     
+
+            Push cx                     
+            ; X0
+                ConvertToNumber valueXD0 
+
+                mov bx, ax
+
+                Pop cx
+
+            Pop ax
+
+            add ax, bx
+
+            ; Print pixels
+
+            ; X axis
+            mov bx, 9fh
+            add bx, cx
+
+            test ax, 1000000000000000b
+                jnz NegativeXP
+            jmp PositiveXP
+
+            NegativeXP:
+                neg ax
+                ; Y axis
+                mov dx, 63h
+                add dx, ax
+                jmp PrintP
+            PositiveXP:
+                ; Y axis
+                mov dx, 63h
+                sub dx, ax
+
+            PrintP:
+                cmp ax, 63h
+                    jae EndOfLoopPos
+                printPixel bx, dx, 4fh
+
+            EndOfLoopPos:
+        dec cx
+            jne RepeatPositive
+
+        Popear
     endm
 
     GraphIntegralMacro macro inferior, superior
@@ -738,6 +1021,7 @@ endm
 
     ConvertToNumber macro string
         local Begin, EndGC
+        Push si
         
         xor ax, ax
         xor bx, bx
@@ -762,14 +1046,46 @@ endm
         
         EndGC:            
             ; The string converted to number is in the registry ax
+            Pop si
     endm
 
     ConvertToString macro string
         local Divide, Divide2, EndCr3, Negative, End2, EndGC
+        Push si
         xor si, si
         xor cx, cx
         xor bx, bx
+        xor dx, dx
+        mov dl, 0ah
+        test ax, 1000000000000000b
+            jnz Negative
+        jmp Divide2
+        Negative:
+            neg ax
+            mov string[si], 45
+            inc si
+            jmp Divide2
         
+        Divide:
+            xor ah, ah
+        Divide2:
+            div dl
+            inc cx
+            Push ax
+            cmp al, 00h
+                je EndCr3
+            jmp Divide
+        EndCr3:
+            pop ax
+            add ah, 30h
+            mov string[si], ah
+            inc si
+        Loop EndCr3
+        mov ah, 24h
+        mov string[si], ah
+        inc si
+        EndGC:
+            Pop si
     endm
 
     ConvertToStringDH macro string, numberToConvert

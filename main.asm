@@ -192,15 +192,16 @@ main proc
 
         jmp Start
     EnterFunctionMemory:
-        cmp valueX4, 00h
+        xor si, si
+        cmp valueX4[si], 24h
             jne ShowFunction
-        cmp valueX3, 00h
+        cmp valueX3[si], 24h
             jne ShowFunction
-        cmp valueX2, 00h
+        cmp valueX2[si], 24h
             jne ShowFunction
-        cmp valueX1, 00h
+        cmp valueX1[si], 24h
             jne ShowFunction
-        cmp valueX2, 00h
+        cmp valueX2[si], 24h
             jne ShowFunction
 
         print msgErrorNoFunction
@@ -209,6 +210,8 @@ main proc
 
         ShowFunction:
             print headerFunctionM
+
+            Clean functionToShow, SIZEOF functionToShow, 24h
 
             GetOFunction functionToShow
 
@@ -220,6 +223,34 @@ main proc
 
         jmp Start
     Derived:
+        xor si, si
+        cmp valueX4[si], 24h
+            jne ShowDFunction
+        cmp valueX3[si], 24h
+            jne ShowDFunction
+        cmp valueX2[si], 24h
+            jne ShowDFunction
+        cmp valueX1[si], 24h
+            jne ShowDFunction
+        cmp valueX2[si], 24h
+            jne ShowDFunction
+
+        print msgErrorNoFunction
+        getChar
+        jmp Start
+
+        ShowDFunction:
+            print headerDerived
+
+            Clean functionToShow, SIZEOF functionToShow, 24h
+
+            getDFunction functionToShow
+
+            print tab
+
+            print functionToShow
+
+            getChar
 
         jmp Start
     Integral:
@@ -271,22 +302,25 @@ main proc
             GraphAxis
             GraphOriginalMacro inferiorLimit, superiorLimit
             jmp EndGraph
-        GraphDerived:
+        GraphDerived:            
             ; VIDEO MODE
             mov ax, 0013h
             int 10h
-
+            
+            getDFunction functionToShow
+            
             GraphAxis
+            
             GraphDerivedMacro inferiorLimit, superiorLimit
-            jmp EndGraph
+            jmp EndGraph            
         GraphIntegral:
             ; VIDEO MODE
-            mov ax, 0013h
-            int 10h
+            ;mov ax, 0013h
+            ;int 10h
 
-            GraphAxis
+            ;GraphAxis
             GraphIntegralMacro inferiorLimit, superiorLimit
-        
+            jmp Start
         EndGraph:
             ; WAIT
             mov ah, 10h
