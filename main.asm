@@ -103,6 +103,11 @@ include macros.asm
         valueX1 db 10 dup('$')
         valueX0 db 10 dup('$')
 
+        valueXD3 db 10 dup('$')
+        valueXD2 db 10 dup('$')
+        valueXD1 db 10 dup('$')
+        valueXD0 db 10 dup('$')
+
         inferiorLimit db 10 dup('$')
         superiorLimit db 10 dup('$')
 
@@ -260,10 +265,10 @@ main proc
 
         GraphOriginal:
             ; VIDEO MODE
-            ;mov ax, 0013h
-            ;int 10h
+            mov ax, 0013h
+            int 10h
 
-            ;GraphAxis
+            GraphAxis
             GraphOriginalMacro inferiorLimit, superiorLimit
             jmp EndGraph
         GraphDerived:
@@ -284,12 +289,12 @@ main proc
         
         EndGraph:
             ; WAIT
-            ;mov ah, 10h
-            ;int 16h
+            mov ah, 10h
+            int 16h
 
             ; TEXT MODE
-            ;mov ax, 0003h
-            ;int 10h
+            mov ax, 0003h
+            int 10h
 
             Popear
 

@@ -171,22 +171,25 @@ endm
     endm
 
     getDFunction macro string
+        local X3, X2, X1, X0
+        Pushear
 
+        xor si, si
+
+        ConcatText string, msgDerived, SIZEOF msgDerived
+
+        ConvertToNumber valueX4     ; Value in ax
+
+        mov bx, 04h
+
+        mul bx                      ; AX = valueX4 * 4
+
+        
+
+        Popear
     endm
 
     getIFunction macro string
-
-    endm
-
-    valueOFunction macro
-        
-    endm
-
-    valueDFunction macro
-
-    endm
-
-    valueIFunction macro
 
     endm
 
@@ -216,7 +219,7 @@ endm
     endm
 
     GraphOriginalMacro macro inferior, superior
-        local RepeatNegative, RepeatPositive
+        local RepeatNegative, RepeatPositive, NegativeXN, PositiveXN, PrintN, NegativeXP, PositiveXP, PrintP
         Pushear
 
         xor si, si
@@ -339,29 +342,40 @@ endm
 
             add ax, bx
 
-            xor di, di
-            mov testing[di], ah
-            inc di
-            mov testing[di], al
-
-            print testing
-            Push ax
-            getChar
-            Pop ax
-            
             ; Print pixels
             
             ; X axis
             mov bx, 9fh
             sub bx, cx
 
-            ; Y axis
-            mov dx, 63h
-            add dx, ax
+            test ax, 1000000000000000b
+                jnz NegativeXN
+            jmp PositiveXN
 
-            cmp ax, 63h
-                jae EndOfLoopNeg
-            ;printPixel bx, dx, 4fh
+            NegativeXN:
+                neg ax
+                ; Y axis
+                mov dx, 63h
+                add dx, ax
+                jmp PrintN
+            PositiveXN:
+                ; Y axis
+                mov dx, 63h
+                sub dx, ax
+
+            PrintN:
+                ;xor di, di
+                ;mov testing[di], ah
+                ;inc di
+                ;mov testing[di], al
+
+                ;print testing
+                ;Push ax
+                ;getChar
+                ;Pop ax
+                cmp ax, 63h
+                    jae EndOfLoopNeg
+                printPixel bx, dx, 4fh
 
 
             EndOfLoopNeg:
@@ -490,13 +504,34 @@ endm
             mov bx, 9fh
             add bx, cx
 
-            ; Y axis
-            mov dx, 63h
-            sub dx, ax
+            test ax, 1000000000000000b
+                jnz NegativeXP
+            jmp PositiveXP
 
-            cmp ax, 63h
-                jae EndOfLoopPos
-            ;printPixel bx, dx, 4fh
+            NegativeXP:
+                neg ax
+                ; Y axis
+                mov dx, 63h
+                add dx, ax
+                jmp PrintP
+            PositiveXP:
+                ; Y axis
+                mov dx, 63h
+                sub dx, ax
+
+            PrintP:
+                ;xor di, di
+                ;mov testing[di], ah
+                ;inc di
+                ;mov testing[di], al
+
+                ;print testing
+                ;Push ax
+                ;getChar
+                ;Pop ax
+                cmp ax, 63h
+                    jae EndOfLoopPos
+                printPixel bx, dx, 4fh
 
 
             EndOfLoopPos:
@@ -640,12 +675,12 @@ endm
         getDate
         ; DL = DAY. DH = MONTH
 
-        ConvertToString stringDate, dl ; NUMBER -> STRING. DAY
+        ConvertToStringDH stringDate, dl ; NUMBER -> STRING. DAY
 
         mov stringDate[si], 2fh ; /
         inc si
 
-        ConvertToString stringDate, dh ; NUMBER -> STRING. MONTH
+        ConvertToStringDH stringDate, dh ; NUMBER -> STRING. MONTH
 
         mov stringDate[si], 2fh ; /
         inc si
@@ -670,17 +705,17 @@ endm
         getHour
         ; CH = HOUR. CL = MINUTES.
         
-        ConvertToString stringDate, ch ; NUMBER -> STRING. HOUR
+        ConvertToStringDH stringDate, ch ; NUMBER -> STRING. HOUR
 
         mov stringDate[si],3ah ; :
         inc si
 
-        ConvertToString stringDate, cl ; NUMBER -> STRING. MINUTES
+        ConvertToStringDH stringDate, cl ; NUMBER -> STRING. MINUTES
 
         mov stringDate[si],3ah ; :
         inc si
 
-        ConvertToString stringDate, dh ; NUMBER -> STRING. SECONDS
+        ConvertToStringDH stringDate, dh ; NUMBER -> STRING. SECONDS
 
         Popear
     endm
@@ -709,7 +744,7 @@ endm
         xor cx, cx
         mov bx, 10
         xor si, si
-        
+        ; Check signs
         Begin:
             mov cl, string[si]
             ; If the ascii is less than the ascii of 0
@@ -729,7 +764,15 @@ endm
             ; The string converted to number is in the registry ax
     endm
 
-    ConvertToString macro string, numberToConvert
+    ConvertToString macro string
+        local Divide, Divide2, EndCr3, Negative, End2, EndGC
+        xor si, si
+        xor cx, cx
+        xor bx, bx
+        
+    endm
+
+    ConvertToStringDH macro string, numberToConvert
         Push ax
         Push bx
 
