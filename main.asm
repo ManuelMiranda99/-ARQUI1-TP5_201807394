@@ -260,10 +260,10 @@ main proc
 
         GraphOriginal:
             ; VIDEO MODE
-            mov ax, 0013h
-            int 10h
+            ;mov ax, 0013h
+            ;int 10h
 
-            GraphAxis
+            ;GraphAxis
             GraphOriginalMacro inferiorLimit, superiorLimit
             jmp EndGraph
         GraphDerived:
@@ -284,12 +284,12 @@ main proc
         
         EndGraph:
             ; WAIT
-            mov ah, 10h
-            int 16h
+            ;mov ah, 10h
+            ;int 16h
 
             ; TEXT MODE
-            mov ax, 0003h
-            int 10h
+            ;mov ax, 0003h
+            ;int 10h
 
             Popear
 

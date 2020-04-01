@@ -255,6 +255,8 @@ endm
             ; X3
                 MultiplyXsTimes cx, 02h
 
+                neg ax
+
                 Push ax                 ; Save the value of X^3
 
                 ConvertToNumber valueX3 ; Convert the coefficient C x^3
@@ -307,8 +309,14 @@ endm
                 ConvertToNumber valueX1 ; Convert the coefficient A x^1
 
                 Pop cx                  ; Restore the value of cx                                       (4)
+                
+                Push cx
+                
+                neg cx
 
                 mul cx                  ; Multiply by the value of cx (x)
+
+                Pop cx
 
             ; Move the value of AX^1 to bx
             mov bx, ax
@@ -331,15 +339,15 @@ endm
 
             add ax, bx
 
-            ;xor di, di
-            ;mov testing[di], ah
-            ;inc di
-            ;mov testing[di], al
+            xor di, di
+            mov testing[di], ah
+            inc di
+            mov testing[di], al
 
-            ;print testing
-            ;Push ax
-            ;getChar
-            ;Pop ax
+            print testing
+            Push ax
+            getChar
+            Pop ax
             
             ; Print pixels
             
@@ -349,11 +357,11 @@ endm
 
             ; Y axis
             mov dx, 63h
-            sub dx, ax
+            add dx, ax
 
             cmp ax, 63h
                 jae EndOfLoopNeg
-            printPixel bx, dx, 4fh
+            ;printPixel bx, dx, 4fh
 
 
             EndOfLoopNeg:
@@ -488,7 +496,7 @@ endm
 
             cmp ax, 63h
                 jae EndOfLoopPos
-            printPixel bx, dx, 4fh
+            ;printPixel bx, dx, 4fh
 
 
             EndOfLoopPos:
