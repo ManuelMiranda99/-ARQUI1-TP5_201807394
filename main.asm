@@ -8,6 +8,10 @@ include macros.asm
 ; DATA SEGMENT
 .data
 
+    ; TESTING
+        testing db 'TEST', '$'
+    ; END TESTING
+
     ; SPECIAL CHARACTERS
         newLine db 13, 10, '$'
         cleanChar db '             ', '$'
@@ -93,11 +97,14 @@ include macros.asm
 
         auxiliarReader db 5 dup('$')
 
-        valueX4 db 00h
-        valueX3 db 00h
-        valueX2 db 00h
-        valueX1 db 00h
-        valueX0 db 00h
+        valueX4 db 10 dup('$')
+        valueX3 db 10 dup('$')
+        valueX2 db 10 dup('$')
+        valueX1 db 10 dup('$')
+        valueX0 db 10 dup('$')
+
+        inferiorLimit db 10 dup('$')
+        superiorLimit db 10 dup('$')
 
     ; END VARIABLES
 
@@ -224,11 +231,25 @@ main proc
         cmp al, 34h
             je Start
 
-        ; VIDEO MODE
-        mov ax, 0013h
-        int 10h
+        Push ax
 
-        GraphAxis
+        print newLine
+
+        print msgEnterInterval
+        print msgEID
+        print msgEnterIntervalF
+
+        getText inferiorLimit
+
+        print newLine
+
+        print msgEnterInterval
+        print msgEIU
+        print msgEnterIntervalF
+
+        getText superiorLimit
+
+        Pop ax
 
         cmp al, 31h
             je GraphOriginal
@@ -238,13 +259,28 @@ main proc
             je GraphIntegral
 
         GraphOriginal:
-            GraphOriginalMacro
+            ; VIDEO MODE
+            mov ax, 0013h
+            int 10h
+
+            GraphAxis
+            GraphOriginalMacro inferiorLimit, superiorLimit
             jmp EndGraph
         GraphDerived:
-            GraphDerivedMacro
+            ; VIDEO MODE
+            mov ax, 0013h
+            int 10h
+
+            GraphAxis
+            GraphDerivedMacro inferiorLimit, superiorLimit
             jmp EndGraph
         GraphIntegral:
-            GraphIntegralMacro
+            ; VIDEO MODE
+            mov ax, 0013h
+            int 10h
+
+            GraphAxis
+            GraphIntegralMacro inferiorLimit, superiorLimit
         
         EndGraph:
             ; WAIT
