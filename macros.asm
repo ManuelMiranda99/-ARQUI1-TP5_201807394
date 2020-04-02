@@ -133,7 +133,7 @@ endm
         X4:
             ConcatText string, valueX4, SIZEOF valueX4
 
-            mov string[si], 78h         ; x
+            mov string[si], 58h         ; X
             inc si
             mov string[si], 34h         ; 4
             inc si
@@ -145,7 +145,7 @@ endm
 
             ConcatText string, valueX3, SIZEOF valueX3
 
-            mov string[si], 78h         ; x
+            mov string[si], 58h         ; X
             inc si
             mov string[si], 33h         ; 3
             inc si
@@ -157,7 +157,7 @@ endm
 
             ConcatText string, valueX2, SIZEOF valueX2
 
-            mov string[si], 78h         ; x
+            mov string[si], 58h         ; X
             inc si
             mov string[si], 32h         ; 2
             inc si
@@ -169,7 +169,7 @@ endm
 
             ConcatText string, valueX1, SIZEOF valueX1
 
-            mov string[si], 78h         ; x
+            mov string[si], 58h         ; X
             inc si
             mov string[si], 31h         ; 1
             inc si
@@ -204,7 +204,7 @@ endm
 
             ConcatText string, valueXD3, SIZEOF valueXD3
 
-            mov string[si], 78h         ; x
+            mov string[si], 58h         ; X
             inc si
             mov string[si], 33h         ; 3
             inc si
@@ -224,7 +224,7 @@ endm
 
             ConcatText string, valueXD2, SIZEOF valueXD2
 
-            mov string[si], 78h         ; x
+            mov string[si], 58h         ; X
             inc si
             mov string[si], 32h         ; 2
             inc si
@@ -244,7 +244,7 @@ endm
 
             ConcatText string, valueXD1, SIZEOF valueXD1
 
-            mov string[si], 78h         ; x
+            mov string[si], 58h         ; X
             inc si
             mov string[si], 31h         ; 1
             inc si        
@@ -264,7 +264,135 @@ endm
     endm
 
     getIFunction macro string
+        local X5, X4, X3, X2, X1, X0
+        Pushear
 
+        xor si, si
+
+        ConcatText string, msgIntegral, SIZEOF msgIntegral
+
+        ; X4 -> X5
+        X5:
+            ConvertToNumber valueX4
+            
+            mov bl, 05h
+
+            div bl
+
+            ConvertToString valueXI5
+
+            ConcatText string, valueX4, SIZEOF valueX4
+
+            mov string[si], 2fh             ; /
+            inc si
+            mov string[si], 35h             ; 5
+            inc si
+            mov string[si], 58h             ; X
+            inc si
+            mov string[si], 35h             ; 5
+            inc si
+
+        ; X3 -> X4
+        X4:
+            mov string[si], 2bh         ; +
+            inc si
+
+            ConvertToNumber valueX3
+
+            mov bl, 04h
+
+            div bl
+
+            xor ah, ah
+
+            ConvertToString valueXI4
+
+            ConcatText string, valueX3, SIZEOF valueX3
+
+            mov string[si], 2fh             ; /
+            inc si
+            mov string[si], 34h             ; 4
+            inc si
+            mov string[si], 58h             ; X
+            inc si
+            mov string[si], 34h             ; 4
+            inc si
+
+        ; X2 -> X3
+        X3:
+            mov string[si], 2bh         ; +
+            inc si
+
+            ConvertToNumber valueX2
+
+            mov bl, 03h
+
+            div bl
+
+            xor ah, ah
+
+            ConvertToString valueXI3
+
+            ConcatText string, valueX2, SIZEOF valueX2
+
+            mov string[si], 2fh             ; /
+            inc si
+            mov string[si], 33h             ; 3
+            inc si
+            mov string[si], 58h             ; X
+            inc si
+            mov string[si], 33h             ; 3
+            inc si
+
+        ; X1 -> X2
+        X2:
+            mov string[si], 2bh         ; +
+            inc si
+
+            ConvertToNumber valueX1
+
+            mov bl, 02h
+
+            div bl
+
+            xor ah, ah
+
+            ConvertToString valueXI2
+
+            ConcatText string, valueX1, SIZEOF valueX1
+
+            mov string[si], 2fh             ; /
+            inc si
+            mov string[si], 32h             ; 2
+            inc si
+            mov string[si], 58h             ; X
+            inc si
+            mov string[si], 32h             ; 2
+            inc si
+
+
+        ; X0 -> X1
+        X1:
+            mov string[si], 2bh         ; +
+            inc si
+
+            ConvertToNumber valueX0
+
+            ConvertToString valueXI2
+
+            ConcatText string, valueX0, SIZEOF valueX0
+
+            mov string[si], 58h             ; X
+            inc si
+            mov string[si], 31h             ; 1
+            inc si
+
+
+        ; +C
+        X0:
+            ConcatText string, msgC, SIZEOF msgC
+
+        Popear
     endm
 
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\

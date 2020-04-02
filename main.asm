@@ -108,6 +108,13 @@ include macros.asm
         valueXD1 db 10 dup('$')
         valueXD0 db 10 dup('$')
 
+        valueXI5 db 10 dup('$')
+        valueXI4 db 10 dup('$')
+        valueXI3 db 10 dup('$')
+        valueXI2 db 10 dup('$')
+        valueXI1 db 10 dup('$')
+        valueXI0 db 10 dup('$')
+
         inferiorLimit db 10 dup('$')
         superiorLimit db 10 dup('$')
 
@@ -254,6 +261,34 @@ main proc
 
         jmp Start
     Integral:
+        xor si, si
+        cmp valueX4[si], 24h
+            jne ShowIFunction
+        cmp valueX3[si], 24h
+            jne ShowIFunction
+        cmp valueX2[si], 24h
+            jne ShowIFunction
+        cmp valueX1[si], 24h
+            jne ShowIFunction
+        cmp valueX2[si], 24h
+            jne ShowIFunction
+
+        print msgErrorNoFunction
+        getChar
+        jmp Start
+
+        ShowIFunction:
+            print headerIntegral
+
+            Clean functionToShow, SIZEOF functionToShow, 24h
+
+            getIFunction functionToShow
+
+            print tab
+
+            print functionToShow
+
+            getChar
 
         jmp Start
     Graph:
