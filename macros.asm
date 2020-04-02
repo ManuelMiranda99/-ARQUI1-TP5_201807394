@@ -1409,12 +1409,57 @@ endm
         jc ReadError
     endm
 
+    GenerateReport macro string
+        xor si, si
+
+        ConcatText string, headerReport, SIZEOF headerReport
+
+        ConcatText string, Fdate, SIZEOF Fdate
+
+        ConcatText string, dateMsg, SIZEOF dateMsg
+
+        ConcatText string, newLine, SIZEOF newLine
+
+        ConcatText string, originalMsg, SIZEOF originalMsg
+
+        Clean functionToShow, SIZEOF functionToShow, 24h
+
+        GetOFunction functionToShow
+
+        ConcatText string, tab, SIZEOF tab
+
+        ConcatText string, functionToShow, SIZEOF functionToShow
+
+        ConcatText string, newLine, SIZEOF newLine
+
+        ConcatText string, derivedMsg, SIZEOF derivedMsg
+        
+        Clean functionToShow, SIZEOF functionToShow, 24h
+
+        getDFunction functionToShow
+
+        ConcatText string, tab, SIZEOF tab
+
+        ConcatText string, functionToShow, SIZEOF functionToShow
+
+        ConcatText string, newLine, SIZEOF newLine
+
+        ConcatText string, integralMsg, SIZEOF integralMsg
+
+        Clean functionToShow, SIZEOF functionToShow, 24h
+
+        getIFunction functionToShow
+
+        ConcatText string, tab, SIZEOF tab
+
+        ConcatText string, functionToShow, SIZEOF functionToShow
+    endm
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\\\\\\ GET DATE \\\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     ; PRINCIPAL MACRO FOR DATE AND HOUR
-    getDateAndHour macro stringDate, stringHour
+    getDateAndHour macro stringDate
         
         Pushear
         xor si, si
@@ -1484,17 +1529,24 @@ endm
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     ConvertToNumber macro string
-        local Begin, EndGC
+        local Begin, EndGC, PositiveSymbol, NegativeSymbol, Negative
         Push si
         
         xor ax, ax
         xor bx, bx
         xor cx, cx
+        xor dx, dx
         mov bx, 10
         xor si, si
         ; Check signs
         Begin:
-            mov cl, string[si]
+            mov cl, string[si]      
+            ; If the ascii is +
+            cmp cl, 43
+                je PositiveSymbol
+            ; If the ascii is -
+            cmp cl, 45
+                je NegativeSymbol            
             ; If the ascii is less than the ascii of 0
             cmp cl, 48
                 jl EndGC
@@ -1506,9 +1558,20 @@ endm
             mul bx      ; Multiply by 10
             add ax, cx
 
-            jmp Begin  
-        
-        EndGC:            
+            jmp Begin
+        PositiveSymbol:
+            inc si
+            jmp Begin
+        NegativeSymbol:
+            mov dx, 01h
+            inc si
+            jmp Begin
+        Negative:
+            neg ax
+            xor dx, dx
+        EndGC:        
+            cmp dx, 01h
+                je Negative    
             ; The string converted to number is in the registry ax
             Pop si
     endm

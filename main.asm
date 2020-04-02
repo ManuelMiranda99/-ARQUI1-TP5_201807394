@@ -60,8 +60,8 @@ include macros.asm
     ; REPORT
         headerReport db 'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 13, 10, 'FACULTAD DE INGENIERIA', 13, 10, 'ESCUELA DE CIENCIAS Y SISTEMAS', 13, 10, 'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1 A', 13, 10, 'PRIMER SEMESTRE 2020', 13, 10, 'ANGEL MANUEL MIRANDA ASTURIAS', 13, 10, '201807394', 13, 10, 13, 10, 'REPORTE PRACTICA NO. 5', 13, 10, 13, 10
 
-        dateMsg db 'Fecha: 00/00/0000', 13, 10
-        hourMsg db 'Hora: 00:00:00', 13, 10
+        Fdate db 'Fecha y Hora: '
+        dateMsg db '00/00/0000  00:00:00', 13, 10
 
         originalMsg db 'Funcion Original', 13, 10
         derivedMsg db 'Funcion Derivada', 13, 10
@@ -359,7 +359,10 @@ main proc
             mov ax, 0013h
             int 10h
 
+            getIFunction functionToShow
+
             GraphAxis
+
             GraphIntegralMacro inferiorLimit, superiorLimit
         EndGraph:
             ; WAIT
@@ -375,13 +378,13 @@ main proc
             jmp Start
     Reports:
 
-        getDateAndHour dateMsg, hourMsg
+        getDateAndHour dateMsg
 
-        Clean reportTxt, SIZEOF reportTxt, 00h
+        Clean reportTxt, SIZEOF reportTxt, 32
 
         CreateFile routeReport, reportHandler
 
-        ;GenerateReport
+        GenerateReport reportTxt
 
         WriteOnFile reportHandler, reportTxt, SIZEOF reportTxt
 
