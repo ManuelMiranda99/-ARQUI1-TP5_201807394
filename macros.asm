@@ -378,7 +378,7 @@ endm
 
             ConvertToNumber valueX0
 
-            ConvertToString valueXI2
+            ConvertToString valueXI1
 
             ConcatText string, valueX0, SIZEOF valueX0
 
@@ -957,7 +957,341 @@ endm
     endm
 
     GraphIntegralMacro macro inferior, superior
+        local RepeatNegative, RepeatPositive, NegativeXN, PositiveXN, PrintN, NegativeXP, PositiveXP, PrintP, EndOfLoopNeg, EndOfLoopPos
+        Pushear
 
+        xor si, si
+        xor di, di
+        xor ax, ax
+        xor bx, bx
+        xor cx, cx
+
+        ConvertToNumber inferior
+
+        mov cx, ax
+
+        ; -X
+        RepeatNegative:
+            Push cx
+
+            ; X5
+                MultiplyXsTimes cx, 04h
+
+                neg ax
+
+                Push ax
+
+                ConvertToNumber valueXI5
+
+                mov bx, ax
+
+                Pop ax
+
+                mul bx
+
+                Pop cx
+            Push ax
+
+            Push cx
+
+            ; X4
+                MultiplyXsTimes cx, 03h
+
+                Push ax
+
+                ConvertToNumber valueXI4
+
+                mov bx, ax
+
+                Pop ax
+
+                mul bx
+
+                Pop cx
+            mov bx, ax
+
+            Pop ax
+
+            add ax, bx
+
+            Push ax
+
+            Push cx
+
+            ; X3
+                MultiplyXsTimes cx, 02h
+
+                neg ax
+
+                Push ax
+
+                ConvertToNumber valueXI3
+
+                mov bx, ax
+
+                Pop ax
+
+                mul bx
+
+                Pop cx
+
+            mov bx, ax
+
+            Pop ax
+
+            add ax, bx
+
+            Push ax
+
+            Push cx
+
+            ; X2
+                MultiplyXsTimes cx, 01h
+
+                Push ax
+
+                ConvertToNumber valueXI2
+
+                mov bx, ax
+
+                Pop ax
+
+                mul bx
+
+                Pop cx
+
+            mov bx, ax
+
+            Pop ax
+
+            add ax, bx
+
+            Push ax
+
+            Push cx
+
+            ; X1
+                ConvertToNumber valueXI1
+
+                Pop cx
+
+                Push cx
+
+                neg cx
+
+                mul cx
+
+                Pop cx
+
+            mov bx, ax
+
+            Pop ax
+
+            add ax, bx
+
+            Push ax
+
+            Push cx
+
+            ; XO
+                ConvertToNumber valueXI0
+                mov bx, ax
+
+                Pop cx
+
+            Pop ax
+
+            add ax, bx
+
+            ; Print pixels
+
+            ; X axis
+            mov bx, 9fh
+            sub bx, cx
+
+            test ax, 1000000000000000b
+                jnz NegativeXN
+            jmp PositiveXN
+
+            NegativeXN:
+                neg ax
+                ; Y axis
+                mov dx, 63h
+                add dx, ax
+                jmp PrintN
+            PositiveXN:
+                ; Y axis
+                mov dx, 63h
+                sub dx, ax
+            
+            PrintN:
+                cmp ax, 63h
+                    jae EndOfLoopNeg
+                printPixel bx, dx, 4fh
+
+            EndOfLoopNeg:
+        dec cx
+            jne RepeatNegative
+        
+        ConvertToNumber superior
+
+        mov cx, ax
+
+        ; +X
+        RepeatPositive:
+            Push cx            
+
+            ; X5
+                MultiplyXsTimes cx, 04h
+
+                Push ax
+
+                ConvertToNumber valueXI5
+
+                mov bx, ax
+
+                Pop ax
+
+                mul bx
+
+                Pop cx
+            Push ax
+
+            Push cx
+
+            ; X4
+                MultiplyXsTimes cx, 03h
+
+                Push ax
+
+                ConvertToNumber valueXI4
+
+                mov bx, ax
+
+                Pop ax
+
+                mul bx
+
+                Pop cx
+            mov bx, ax
+
+            Pop ax
+
+            add ax, bx
+
+            Push ax
+
+            Push cx
+
+            ; X3
+                MultiplyXsTimes cx, 02h
+
+                Push ax
+
+                ConvertToNumber valueXI3
+
+                mov bx, ax
+
+                Pop ax
+
+                mul bx
+
+                Pop cx
+
+            mov bx, ax
+
+            Pop ax
+
+            add ax, bx
+
+            Push ax
+
+            Push cx
+
+            ; X2
+                MultiplyXsTimes cx, 01h
+
+                Push ax
+
+                ConvertToNumber valueXI2
+
+                mov bx, ax
+
+                Pop ax
+
+                mul bx
+
+                Pop cx
+
+            mov bx, ax
+
+            Pop ax
+
+            add ax, bx
+
+            Push ax
+
+            Push cx
+
+            ; X1
+                ConvertToNumber valueXI1
+
+                Pop cx
+
+                Push cx
+
+                mul cx
+
+                Pop cx
+
+            mov bx, ax
+
+            Pop ax
+
+            add ax, bx
+
+            Push ax
+
+            Push cx
+
+            ; XO
+                ConvertToNumber valueXI0
+                mov bx, ax
+
+                Pop cx
+
+            Pop ax
+
+            add ax, bx
+
+            ; Print pixels
+
+            ; X axis
+            mov bx, 9fh
+            add bx, cx
+
+            test ax, 1000000000000000b
+                jnz NegativeXP
+            jmp PositiveXP
+
+            NegativeXP:
+                neg ax
+                ; Y axis
+                mov dx, 63h
+                add dx, ax
+                jmp PrintP
+            PositiveXP:
+                ; Y axis
+                mov dx, 63h
+                sub dx, ax
+            
+            PrintP:
+                cmp ax, 63h
+                    jae EndOfLoopPos
+                printPixel bx, dx, 4fh
+
+            EndOfLoopPos:
+        Popear
     endm
 
     MultiplyXsTimes macro number, times

@@ -46,6 +46,7 @@ include macros.asm
             headerIntegral db 'INTEGRAL DE f(x): ', 13, 10, '$'
             msgIntegral db 'F(x) = ', '$'
             msgC db ' + c', '$'
+            msgEnterC db 'Ingrese el valor c: ', '$'
         
         ; GRAPH
             menuGraph db 9, 9, '-_-MENU GRAFICAR-_-', 13, 10, '1) Graficar Original f(x)', 13, 10, '2) Graficar Derivada f`(x)', 13, 10, '3) Graficar Integral F(x)', 13, 10, '4) Regresar f(x)', 13, 10, '$'
@@ -349,13 +350,17 @@ main proc
             GraphDerivedMacro inferiorLimit, superiorLimit
             jmp EndGraph            
         GraphIntegral:
-            ; VIDEO MODE
-            ;mov ax, 0013h
-            ;int 10h
+            print newLine
+            print msgEnterC
 
-            ;GraphAxis
+            getText valueXI0
+
+            ; VIDEO MODE
+            mov ax, 0013h
+            int 10h
+
+            GraphAxis
             GraphIntegralMacro inferiorLimit, superiorLimit
-            jmp Start
         EndGraph:
             ; WAIT
             mov ah, 10h
