@@ -1291,6 +1291,8 @@ endm
                 printPixel bx, dx, 4fh
 
             EndOfLoopPos:
+        dec cx
+            jne RepeatPositive
         Popear
     endm
 
