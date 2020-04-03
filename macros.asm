@@ -264,7 +264,7 @@ endm
     endm
 
     getIFunction macro string
-        local X5, X4, X3, X2, X1, X0
+        local X5, NegativeX5, FollowX5, EndNegX5, EndPosX5, X4, NegativeX4, FollowX4, EndNegX4, EndPosX4, X3, NegativeX3, FollowX3, EndNegX3, EndPosX3, X2, NegativeX2, FollowX2, EndNegX2, EndPosX2, X1, NegativeX1, FollowX1, EndNegX5, EndPosX5, X0, NegativeX0, FollowX0
         Pushear
 
         xor si, si
@@ -274,7 +274,15 @@ endm
         ; X4 -> X5
         X5:
             ConvertToNumber valueX4
+            xor di, di
+
+            test ax, 1000000000000000b
+                jnz NegativeX5
+            jmp FollowX5
             
+            NegativeX5:
+                neg ax
+            FollowX5:
             mov bl, 05h
 
             div bl
@@ -299,6 +307,13 @@ endm
 
             ConvertToNumber valueX3
 
+            test ax, 1000000000000000b
+                jnz NegativeX4
+            jmp FollowX4
+            
+            NegativeX4:
+                neg ax
+            FollowX4:
             mov bl, 04h
 
             div bl
@@ -325,6 +340,13 @@ endm
 
             ConvertToNumber valueX2
 
+            test ax, 1000000000000000b
+                jnz NegativeX3
+            jmp FollowX3
+            
+            NegativeX3:
+                neg ax
+            FollowX3:
             mov bl, 03h
 
             div bl
@@ -351,6 +373,13 @@ endm
 
             ConvertToNumber valueX1
 
+            test ax, 1000000000000000b
+                jnz NegativeX2
+            jmp FollowX2
+            
+            NegativeX2:
+                neg ax
+            FollowX2:
             mov bl, 02h
 
             div bl
