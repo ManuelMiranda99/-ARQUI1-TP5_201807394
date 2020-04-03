@@ -400,7 +400,409 @@ endm
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     AnalizeText macro file
+        local StartA, EndGC, EndOperators, InvalidSymbol, CheckEnd, Symbol, Space, SecondAnalize, SymbolPass, SpacePass, InvalidSymbolPass
 
+        xor si, si
+        xor ax, ax
+        mov si, SIZEOF file
+
+        mov cx, SIZEOF file
+
+        CheckEnd:
+            dec si
+            mov al, file[si]
+            cmp al, ';'
+                je StartA
+        Loop CheckEnd
+
+        jmp NoEndCharError
+        
+        StartA:            
+            Clean operands, SIZEOF operands, '$'
+            Clean operators, SIZEOF operators, '$'
+            xor si, si
+            xor cx, cx
+            ; For the array of operators
+            xor di, di
+
+            
+        StartAnalize:
+            mov al, file[si]
+
+            cmp al, '+'
+                je Symbol
+            cmp al, '-'
+                je Symbol
+            cmp al, '*'
+                je Symbol
+            cmp al, '/'
+                je Symbol
+            cmp al, ' '
+                je Space
+            cmp al, ';'
+                je EndOperators
+            ; If the ascii is less than the ascii of 0
+            cmp al, 48
+                jl InvalidSymbol
+            ; If the ascii is more than the ascii of 9
+            cmp al, 57
+                jg InvalidSymbol
+            ; NUMBER
+            inc si
+            jmp StartAnalize
+        Symbol:
+            inc si
+            mov operators[di], al
+            inc di
+            jmp StartAnalize
+        Space:
+            inc si
+            jmp StartAnalize
+        InvalidSymbol:
+            Push di
+
+            xor di, di
+            
+            mov cl, al
+            mov charI[di], cl
+            
+            print invalidCharE
+            print charI
+            getChar
+            
+            Pop di
+            inc si
+            jmp StartAnalize
+
+        EndOperators:
+            xor si, si
+            xor ax, ax
+            xor cx, cx
+            ; For the array of operands
+            xor di, di
+            
+        SecondAnalize:
+            mov al, file[si]
+
+            ; Symbols pass
+                cmp al, '+'
+                    je SymbolPass
+                cmp al, '-'
+                    je SymbolPass
+                cmp al, '*'
+                    je SymbolPass
+                cmp al, '/'
+                    je SymbolPass
+                cmp al, ' '
+                    je SpacePass
+                cmp al, ';'
+                    je EndGC
+                ; If the ascii is less than the ascii of 0
+                cmp al, 48
+                    jl InvalidSymbolPass
+                ; If the ascii is more than the ascii of 9
+                cmp al, 57
+                    jg InvalidSymbolPass
+            ; NUMBER            
+                inc si
+                ; Al -> x10. Ah -> x1.
+                mov ah, file[si]
+
+                Push di
+
+                xor di, di
+
+                Clean auxInt, SIZEOF auxInt, '$'
+
+                mov auxInt[di], al
+                inc di
+                mov auxInt[di], ah
+
+                Pop di
+
+                ConvertToNumber auxInt                
+
+                mov operands[di], ax
+
+                inc di
+                inc di
+                inc si
+                
+            jmp SecondAnalize
+        SymbolPass:
+            inc si            
+            jmp SecondAnalize
+        SpacePass:
+            inc si
+            jmp SecondAnalize
+        InvalidSymbolPass:        
+            inc si
+            jmp SecondAnalize
+
+        EndGC:
+            cmp charI[00h], 00h
+                jne Start
+            mov operands[di], 4fh    ; O
+            inc di
+            inc di
+            mov operands[di], 54h   ; T
+            inc di
+            inc di
+            mov operands[di], 54h   ; T
+            inc di
+            inc di
+            mov operands[di], 4fh    ; O
+            OperateMacro
+    endm
+
+    OperateMacro macro
+        local EndGC, Division, Multiplication, Subtraction, Addition
+        ; operators --- operands
+
+        xor si, si
+        xor di, di
+        
+        mov cx, SIZEOF operators
+        Division:
+            mov al, operators[si]
+            cmp al, '/'
+                je MakeDivision
+            cmp al, '$'
+                je EndDiv
+            jmp NextDiv
+
+            MakeDivision:
+                xor dx, dx     
+                mov ax, operands[di]
+
+                inc di
+                inc di
+                mov bx, operands[di]
+
+                div bx                  ; Operands[di] / Operands[di+1]                
+                
+                Clean auxInt, SIZEOF auxInt, '$'
+
+                ConvertToString auxInt
+
+                ConvertToNumber auxInt
+
+                dec di
+                dec di
+                mov operands[di], ax
+
+                inc di
+                inc di
+
+                ; Move array
+                MoveArrays
+
+                ;print operators
+                ;print newLine
+                ;print operands
+                ;getChar
+
+                dec si
+                dec di
+                dec di
+
+            NextDiv:
+                inc di
+                inc di
+        dec cx
+            jne Division 
+        
+        EndDiv:
+
+        xor si, si
+        xor di, di
+        
+        mov cx, SIZEOF operators
+        Multiplication:
+            mov al, operators[si]
+            cmp al, '*'
+                je MakeMultiplication
+            cmp al, '$'
+                je EndMul
+            jmp NextMul
+
+            MakeMultiplication:
+                xor dx, dx
+                mov ax, operands[di]
+
+                inc di
+                inc di
+                mov bx, operands[di]
+
+                mul bx
+
+                Clean auxInt, SIZEOF auxInt, '$'
+
+                ConvertToString auxInt
+
+                ConvertToNumber auxInt
+
+                dec di
+                dec di
+                mov operands[di], ax
+
+                inc di
+                inc di
+
+                ; Move array
+                MoveArrays
+
+                ;print operators
+                ;print newLine
+                ;print operands
+                ;getChar
+
+                dec di
+                dec di
+            NextMul:
+                inc si
+                inc di
+                inc di
+        dec cx
+            jne Multiplication
+
+        EndMul:
+
+        xor si, si
+        xor di, di
+        
+        mov cx, SIZEOF operators
+        Subtraction:
+            mov al, operators[si]
+            cmp al, '-'
+                je MakeSub
+            cmp al, '$'
+                je EndSub
+            jmp NextSub
+
+            MakeSub:
+                xor dx, dx
+                mov ax, operands[di]
+
+                inc di
+                inc di
+                mov bx, operands[di]
+
+                sub ax, bx
+
+                dec di
+                dec di
+                mov operands[di], ax
+
+                inc di
+                inc di
+
+                ; Move array
+                MoveArrays
+
+                ;print operators
+                ;print newLine
+                ;print operands
+                ;getChar
+
+                dec di
+                dec di
+            NextSub:
+                inc si
+                inc di
+                inc di
+        dec cx
+            jne Subtraction
+
+        EndSub:
+
+        xor si, si
+        xor di, di
+        
+        mov cx, SIZEOF operators
+        Addition:
+            mov al, operators[si]
+            cmp al, '+'
+                je MakeAdd
+            cmp al, '$'
+                je EndAdd
+            jmp NextAdd
+
+            MakeAdd:
+                xor dx, dx
+                mov ax, operands[di]
+
+                inc di
+                inc di
+                mov bx, operands[di]
+
+                add ax, bx
+
+                dec di
+                dec di
+                mov operands[di], ax
+
+                inc di
+                inc di
+
+                ; Move Array
+                MoveArrays
+
+                ;print operators
+                ;print newLine
+                ;print operands
+                ;getChar
+
+                dec di
+                dec di
+
+            NextAdd:
+                inc si
+                inc di
+                inc di
+        dec cx
+            jne Addition
+
+        EndAdd:
+        xor di, di
+        mov ax, operands[di]
+        Clean auxInt, SIZEOF auxInt, '$'
+        ConvertToString auxInt
+        print resultMsg
+        print auxInt
+        getChar
+    endm
+
+    MoveArrays macro
+        local OperatorsLoop, OperandsLoop, EndOperatorsLoop, EndOperandsLoop, EndGC
+        Pushear
+
+        mov cx, SIZEOF operators
+        OperatorsLoop:
+            mov al, operators[si]
+            cmp al, '$'
+                je EndOperatorsLoop
+            mov al, operators[si+1]
+            mov operators[si], al
+            inc si
+
+        Loop OperatorsLoop
+
+        EndOperatorsLoop:
+            xor cx, cx
+
+        mov cx, SIZEOF operands
+        OperandsLoop:
+            mov ax, operands[di]
+            mov ax, operands[di+2]
+            mov operands[di], ax
+            inc di
+            inc di
+        Loop OperandsLoop
+
+        jmp EndGC
+        EndGC:
+        Popear
     endm
 
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -1454,6 +1856,61 @@ endm
 
         ConcatText string, functionToShow, SIZEOF functionToShow
     endm
+
+    CheckRoute macro route
+        local First, Begin, EndGC
+        
+        xor si, si
+
+        mov cx, 02h
+        First:
+            cmp route[si], '#'
+                jne InvalidRouteError
+            inc si
+        Loop First
+
+        MoveRoute route
+
+        mov si, SIZEOF route
+
+        Begin:
+            dec si
+            cmp route[si], 00h
+                je Begin
+            cmp route[si], '#'
+                je EndGC
+        jmp InvalidRouteError
+        EndGC:
+            mov route[si], 00h
+            dec si
+            cmp route[si], '#'
+                jne InvalidRouteError
+            mov route[si], 00h
+            dec si
+            cmp route[si], 'q'
+                jne InvalidRouteError
+            dec si
+            cmp route[si], 'r'
+                jne InvalidRouteError
+            dec si
+            cmp route[si], 'a'
+                jne InvalidRouteError
+            dec si
+            cmp route[si], '.'
+                jne InvalidRouteError
+    endm
+
+    MoveRoute macro string
+        local RepeatMove
+        xor si, si
+        mov cx, SIZEOF string
+        RepeatMove:
+            mov al, string[si+2]            
+            mov string[si], al
+            inc si
+        Loop RepeatMove
+    endm
+
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\\\\\\ GET DATE \\\\\\\\\\\\\\\\\\\\\
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -1542,11 +1999,11 @@ endm
         Begin:
             mov cl, string[si]      
             ; If the ascii is +
-            cmp cl, 43
+            cmp cl, '+'
                 je PositiveSymbol
             ; If the ascii is -
-            cmp cl, 45
-                je NegativeSymbol            
+            cmp cl, '-'
+                je NegativeSymbol
             ; If the ascii is less than the ascii of 0
             cmp cl, 48
                 jl EndGC

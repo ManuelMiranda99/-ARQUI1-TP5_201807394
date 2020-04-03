@@ -86,8 +86,14 @@ include macros.asm
         ; END MESSAGE
             resultMsg db 'El resultado de la operacion es: ', '$'
 
+        ; Stacks
+            operators db 1000 dup ('$')
+            operands dw 1000 dup ('$')
+            auxInt db 50 dup('$')
+
         ; ERRORS
-            invalidCharE db 'Caracter invalido:    ', '$'
+            invalidCharE db 'Caracter invalido: ', '$'
+            charI db 00h, '$'
             missingCharE db 'Falto caracter de finalizacion (', 59, ')', '$'
     ; END CALCULATOR
 
@@ -123,8 +129,9 @@ include macros.asm
 
     ; ERRORS
         msgErrorNoFunction db 'No ingreso funcion alguna', '$'
+        msgErrorRoute db 'No ingreso el formato de ruta esperado', '$'
         msgErrorWrite db 'Error al escribir en el archivo', '$'
-        msgErrorOpen db 'Error al abrir el archivo', '$'
+        msgErrorOpen db 'Error al abrir el archivo. Puede que no exista o la extension este mala', '$'
         msgErrorCreate db 'Error al crear el archivo', '$'
         msgErrorClose db 'Error al cerrar el archivo', '$'
         msgErrorRead db 'Error al leer el archivo', '$'
@@ -378,29 +385,49 @@ main proc
             jmp Start
     Reports:
 
-        getDateAndHour dateMsg
+        xor si, si
+        cmp valueX4[si], 24h
+            jne MakeReport
+        cmp valueX3[si], 24h
+            jne MakeReport
+        cmp valueX2[si], 24h
+            jne MakeReport
+        cmp valueX1[si], 24h
+            jne MakeReport
+        cmp valueX2[si], 24h
+            jne MakeReport
 
-        Clean reportTxt, SIZEOF reportTxt, 32
-
-        CreateFile routeReport, reportHandler
-
-        GenerateReport reportTxt
-
-        WriteOnFile reportHandler, reportTxt, SIZEOF reportTxt
-
-        CloseFile reportHandler
-
+        print msgErrorNoFunction
+        getChar
         jmp Start
+
+        MakeReport:
+
+            getDateAndHour dateMsg
+
+            Clean reportTxt, SIZEOF reportTxt, 32
+
+            CreateFile routeReport, reportHandler
+
+            GenerateReport reportTxt
+
+            WriteOnFile reportHandler, reportTxt, SIZEOF reportTxt
+
+            CloseFile reportHandler
+
+            jmp Start
     Calculator:
         print msgRoute
 
-        Clean routeCalculator, SIZEOF routeCalculator, 24h
+        Clean routeCalculator, SIZEOF routeCalculator, 00h        
 
         getRoute routeCalculator
 
+        CheckRoute routeCalculator
+
         OpenFile routeCalculator, handlerCalculator
 
-        Clean fileContent, SIZEOF fileContent, 56h
+        Clean fileContent, SIZEOF fileContent, '$'
 
         ReadFile handlerCalculator, fileContent, SIZEOF fileContent
 
@@ -427,7 +454,8 @@ main proc
             print cleanChar
             print cleanChar
             print cleanChar        
-            jmp Start
+            ClearConsole
+            jmp Calculator
         CreateError:
             print msgErrorCreate
             getChar
@@ -448,6 +476,23 @@ main proc
             print cleanChar
             print cleanChar
             print cleanChar        
+            jmp Start
+        InvalidRouteError:
+            moveCursor 00h, 00h
+            print cleanChar
+            print cleanChar
+            print cleanChar
+            print cleanChar
+            print cleanChar
+            moveCursor 00h, 00h
+            print msgErrorRoute
+            getChar
+            ClearConsole
+            jmp Calculator
+        NoEndCharError:
+            print missingCharE
+            getChar
+            ClearConsole
             jmp Start
 main endp
 
