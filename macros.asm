@@ -823,7 +823,7 @@ endm
     endm
 
     GraphOriginalMacro macro inferior, superior
-        local RepeatNegative, RepeatPositive, NegativeXN, PositiveXN, PrintN, NegativeXP, PositiveXP, PrintP, EndOfLoopNeg, EndOfLoopPos
+        local Follow, NegativeInferior, RepeatNegative, RepeatPositive, NegativeXN, PositiveXN, PrintN, NegativeXP, PositiveXP, PrintP, EndOfLoopNeg, EndOfLoopPos
         Pushear
 
         xor si, si
@@ -834,6 +834,14 @@ endm
 
         ConvertToNumber inferior
 
+        test ax, 1000000000000000b
+            jnz NegativeInferior
+        jmp Follow
+
+        NegativeInferior:
+            neg ax
+
+        Follow:
         mov cx, ax
 
         ; -X
@@ -1118,7 +1126,7 @@ endm
     endm
 
     GraphDerivedMacro macro inferior, superior
-        local RepeatNegative, RepeatPositive, NegativeXN, PositiveXN, PrintN, NegativeXP, PositiveXP, PrintP, EndOfLoopNeg, EndOfLoopPos
+        local Follow, NegativeInferior, RepeatNegative, RepeatPositive, NegativeXN, PositiveXN, PrintN, NegativeXP, PositiveXP, PrintP, EndOfLoopNeg, EndOfLoopPos
         Pushear
 
         xor si, si
@@ -1129,6 +1137,14 @@ endm
 
         ConvertToNumber inferior
 
+        test ax, 1000000000000000b
+            jnz NegativeInferior
+        jmp Follow
+
+        NegativeInferior:
+            neg ax
+
+        Follow:
         mov cx, ax
 
         ; -X
@@ -1359,7 +1375,7 @@ endm
     endm
 
     GraphIntegralMacro macro inferior, superior
-        local RepeatNegative, RepeatPositive, NegativeXN, PositiveXN, PrintN, NegativeXP, PositiveXP, PrintP, EndOfLoopNeg, EndOfLoopPos
+        local Follow, NegativeInferior, RepeatNegative, RepeatPositive, NegativeXN, PositiveXN, PrintN, NegativeXP, PositiveXP, PrintP, EndOfLoopNeg, EndOfLoopPos
         Pushear
 
         xor si, si
@@ -1370,6 +1386,14 @@ endm
 
         ConvertToNumber inferior
 
+        test ax, 1000000000000000b
+            jnz NegativeInferior
+        jmp Follow
+
+        NegativeInferior:
+            neg ax
+
+        Follow:
         mov cx, ax
 
         ; -X
@@ -1862,15 +1886,6 @@ endm
         
         xor si, si
 
-        mov cx, 02h
-        First:
-            cmp route[si], '#'
-                jne InvalidRouteError
-            inc si
-        Loop First
-
-        MoveRoute route
-
         mov si, SIZEOF route
 
         Begin:
@@ -1995,6 +2010,7 @@ endm
         xor dx, dx
         mov bx, 10
         xor si, si
+        xor di, di
         ; Check signs
         Begin:
             mov cl, string[si]      
@@ -2020,16 +2036,19 @@ endm
             inc si
             jmp Begin
         NegativeSymbol:
-            mov dx, 01h
+            inc di            
             inc si
             jmp Begin
         Negative:
+            ;TestingAX
+            xor di, di
             neg ax
             xor dx, dx
         EndGC:        
-            cmp dx, 01h
-                je Negative    
+            cmp di, 01h
+                je Negative
             ; The string converted to number is in the registry ax
+            ;TestingAX
             Pop si
     endm
 

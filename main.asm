@@ -421,6 +421,16 @@ main proc
 
         Clean routeCalculator, SIZEOF routeCalculator, 00h        
 
+        getChar
+
+        cmp al, '#'
+            jne InvalidRouteError
+        
+        getChar
+
+        cmp al, '#'
+            jne InvalidRouteError
+
         getRoute routeCalculator
 
         CheckRoute routeCalculator
